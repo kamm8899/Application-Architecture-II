@@ -118,7 +118,7 @@ public class ChatServerActivity extends FragmentActivity implements OnClickListe
         messagesAdapter = new MessagesAdapter();
 
         // TODO create the view model
-        chatViewModel = new ChatViewModel( getApplication() );
+        chatViewModel = new ViewModelProvider(this).get(ChatViewModel.class);
         // TODO query the database asynchronously, and use messagesAdapter to display the result
         List<Message> messages = chatViewModel.fetchAllMessages().getValue();
         messageList.setAdapter(messagesAdapter);

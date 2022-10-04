@@ -15,6 +15,7 @@ import java.util.List;
 import edu.stevens.cs522.chatserver.R;
 import edu.stevens.cs522.chatserver.entities.Peer;
 import edu.stevens.cs522.chatserver.ui.TextAdapter;
+import edu.stevens.cs522.chatserver.viewmodels.PeerViewModel;
 import edu.stevens.cs522.chatserver.viewmodels.PeersViewModel;
 
 
@@ -39,7 +40,8 @@ public class ViewPeersActivity extends FragmentActivity implements TextAdapter.O
         peersList.setAdapter(peerAdapter);
 
         // TODO create the view model and query for a list of all peers
-        PeersViewModel pVM = new PeersViewModel(getApplication());
+        PeersViewModel pVM  = new ViewModelProvider(this).get(PeersViewModel.class);
+
 
         List<Peer> peers = pVM.fetchAllPeers().getValue();
 

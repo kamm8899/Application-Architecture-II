@@ -23,6 +23,7 @@ import edu.stevens.cs522.chatserver.R;
 import edu.stevens.cs522.chatserver.entities.Message;
 import edu.stevens.cs522.chatserver.entities.Peer;
 import edu.stevens.cs522.chatserver.ui.TextAdapter;
+import edu.stevens.cs522.chatserver.viewmodels.ChatViewModel;
 import edu.stevens.cs522.chatserver.viewmodels.PeerViewModel;
 
 /**
@@ -65,7 +66,7 @@ public class ViewPeerActivity extends FragmentActivity {
         messageList.setAdapter(messagesAdapter);
 
         // TODO open the view model
-        PeerViewModel peerViewModel = new PeerViewModel(getApplication());
+        PeerViewModel peerViewModel = new ViewModelProvider(this).get(PeerViewModel.class);
 
         // TODO query the database asynchronously, and use messagesAdapter to display the result
         List<Message> messages = peerViewModel.fetchMessagesFromPeer(peer).getValue();
