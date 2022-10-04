@@ -25,12 +25,21 @@ public class PeersViewModel extends AndroidViewModel {
      * TODO finish this
      */
     public LiveData<List<Peer>> fetchAllPeers() {
+        //there is a list in this class that can hold all of the peers
+        //but maybe we haven't created that list yet by querying the databse
 
-        return null;
+        //if peers is null we have not queried the datebase yet so lets query it
+        //with loadPeers90
+        if (peers == null) {
+            peers = loadPeers();
+        }
+        //at this point, whether we did it above or we did it earlier the peers list should be
+        //initialized/created so we can just return it
+        return peers;
     }
 
     private LiveData<List<Peer>> loadPeers() {
-        return null;
+        return chatDatabase.peerDao().fetchAllPeers();
     }
     // End TODO
 

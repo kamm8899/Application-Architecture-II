@@ -24,6 +24,7 @@ import android.widget.Button;
 
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -43,7 +44,7 @@ import edu.stevens.cs522.chatserver.viewmodels.ChatViewModel;
 
 public class ChatServerActivity extends FragmentActivity implements OnClickListener {
 
-	final static public String TAG = ChatServerActivity.class.getCanonicalName();
+    final static public String TAG = ChatServerActivity.class.getCanonicalName();
 
     public final static String SENDER_NAME = "name";
 
@@ -56,20 +57,20 @@ public class ChatServerActivity extends FragmentActivity implements OnClickListe
     public final static String LATITUDE = "latitude";
 
     public final static String LONGITUDE = "longitude";
-		
-	/*
-	 * Socket used both for sending and receiving.
-	 *
-	 * This should also be in a view model!
-	 */
+
+    /*
+     * Socket used both for sending and receiving.
+     *
+     * This should also be in a view model!
+     */
     private DatagramSendReceive serverSocket;
 //  private DatagramSocket serverSocket;
 
 
     /*
-	 * True as long as we don't get socket errors
-	 */
-	private boolean socketOK = true; 
+     * True as long as we don't get socket errors
+     */
+    private boolean socketOK = true;
 
     /*
      * UI for displayed received messages
@@ -79,13 +80,13 @@ public class ChatServerActivity extends FragmentActivity implements OnClickListe
     private MessagesAdapter messagesAdapter;
 
     /*
-	 * Called when the activity is first created. 
-	 */
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+     * Called when the activity is first created.
+     */
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-		Log.i(TAG, "(Re)starting ChatServer activity....");
+        Log.i(TAG, "(Re)starting ChatServer activity....");
 
         /**
          * Let's be clear, this is a HACK to allow you to do network communication on the messages thread.
@@ -114,24 +115,38 @@ public class ChatServerActivity extends FragmentActivity implements OnClickListe
         messageList.setLayoutManager(new LinearLayoutManager(this));
 
         // TODO Initialize the recyclerview and adapter for messages
+        messagesAdapter = new MessagesAdapter();
 
         // TODO create the view model
-
+        chatViewModel = new ChatViewModel( getApplication() );
         // TODO query the database asynchronously, and use messagesAdapter to display the result
+        List<Message> messages = chatViewModel.fetchAllMessages().getValue();
+        messageList.setAdapter(messagesAdapter);
 
+        chatViewModel.fetchAllMessages().observe(this, new Observer<List<Message>>() {
+            @Override
+            public void onChanged(List<Message> messages) {
+                //if our list of messages has changed we should set the elements in our
+                //adapter to be the new list of messagesa, and also notify the UI
+                //that the data has changed so it get's redrawn
+                messagesAdapter.setMessages(messages);
+                messagesAdapter.notifyDataSetChanged();
+            }
+        });
 
         // TODO bind the button for "next" to this activity as listener
+        Button btnNext = findViewById(R.id.next);
+        btnNext.setOnClickListener(this);
 
-
-	}
+    }
 
     public void onClick(View v) {
-		
-		byte[] receiveData = new byte[1024];
 
-		DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+        byte[] receiveData = new byte[1024];
 
-		try {
+        DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+
+        try {
 
             String sender = null;
 
@@ -210,39 +225,40 @@ public class ChatServerActivity extends FragmentActivity implements OnClickListe
             message.longitude = longitude;
 
             /*
-			 * TODO upsert peer and insert message into the database
-			 */
-
+             * TODO upsert peer and insert message into the database
+             */
+            chatViewModel.upsert(peer);
+            chatViewModel.persist(message);
             /*
              * End TODO
              *
              * The livedata for the messages should update via observer automatically.
              */
 
-		} catch (Exception e) {
-			
-			Log.e(TAG, "Problems receiving packet: " + e.getMessage(), e);
-			socketOK = false;
-		} 
+        } catch (Exception e) {
 
-	}
+            Log.e(TAG, "Problems receiving packet: " + e.getMessage(), e);
+            socketOK = false;
+        }
 
-	/*
-	 * Close the socket before exiting application
-	 */
-	public void closeSocket() {
-	    if (serverSocket != null) {
+    }
+
+    /*
+     * Close the socket before exiting application
+     */
+    public void closeSocket() {
+        if (serverSocket != null) {
             serverSocket.close();
             serverSocket = null;
         }
-	}
+    }
 
-	/*
-	 * If the socket is OK, then it's running
-	 */
-	boolean socketIsOK() {
-		return socketOK;
-	}
+    /*
+     * If the socket is OK, then it's running
+     */
+    boolean socketIsOK() {
+        return socketOK;
+    }
 
     public void onDestroy() {
         super.onDestroy();
@@ -254,7 +270,8 @@ public class ChatServerActivity extends FragmentActivity implements OnClickListe
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         // TODO inflate a menu with PEERS option
-
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.chatserver_menu, menu);
 
         return true;
     }
@@ -266,8 +283,8 @@ public class ChatServerActivity extends FragmentActivity implements OnClickListe
         if (itemId == R.id.peers) {
             // TODO PEERS provide the UI for viewing list of peers
             // The subactivity will query the database for the list of peers.
-
-
+            Intent i = new Intent(this, ViewPeersActivity.class );
+            startActivity(i);
 
         }
         return false;
