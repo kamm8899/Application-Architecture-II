@@ -3,6 +3,7 @@ package edu.stevens.cs522.chatserver.databases;
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 
 import java.util.List;
@@ -34,7 +35,7 @@ public interface MessageDao {
      * Add a new message to the database.
      * @param message
      */
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     public void persist(Message message);
 
 }

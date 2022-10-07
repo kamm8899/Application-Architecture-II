@@ -43,7 +43,7 @@ public abstract class PeerDao {
      * @param peer
      * @return
      */
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     protected abstract void insert(Peer peer);
 
     /**

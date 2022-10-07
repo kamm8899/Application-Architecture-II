@@ -7,11 +7,11 @@
         <deviceKey>
           <Key>
             <type value="VIRTUAL_DEVICE_PATH" />
-            <value value="$USER_HOME$/.android/avd/Chat_Client.avd" />
+            <value value="$USER_HOME$/.android/avd/Chat_Server.avd" />
           </Key>
         </deviceKey>
       </Target>
     </targetSelectedWithDropDown>
-    <timeTargetWasSelectedWithDropDown value="2022-10-07T22:09:35.332647Z" />
+    <timeTargetWasSelectedWithDropDown value="2022-10-07T22:39:51.203416Z" />
   </component>
 </project>
